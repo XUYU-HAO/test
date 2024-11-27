@@ -13,29 +13,62 @@ struct ListNode {
 };
 
 void clear(ListNode *start){
-    while(start!=nullptr){
+    while(start != nullptr){
         ListNode *tmp = start;
         start = start->next;
         delete tmp;
-        tmp = nullptr;
     }
 }
 
-void traverse(ListNode *start){
-    for(ListNode *it=start; it!=nullptr; it=it->next){
-        cout<<" "+(it==start)<<it->val;
+void traval(ListNode *start){
+    if (start == nullptr) return; // 如果鏈結串列為空，直接返回
+    cout << start->val; // 首先輸出第一個數字
+    for(ListNode *it = start->next; it != nullptr; it = it->next){
+        cout << " " << it->val; // 從第二個節點開始，每個數字前面加上一個空格
     }
-    cout<<"\n";
+    cout << "\n"; // 輸出結束後換行
 }
 
-int main(){
-    ListNode *head=new ListNode(), *pre;
+ListNode* partition(ListNode* head, int x) {
+    if (!head) return nullptr; // 如果鏈結串列為空，直接返回
+
+    ListNode *leftHead = new ListNode(), *leftTail = leftHead; // 小於 x 的部分
+    ListNode *rightHead = new ListNode(), *rightTail = rightHead; // 大於等於 x 的部分
+
+    // 遍歷原始鏈結串列
+    while (head) {
+        if (head->val < x) {
+            leftTail->next = head; // 小於 x，加入 left
+            leftTail = leftTail->next;
+        } else {
+            rightTail->next = head; // 大於等於 x，加入 right
+            rightTail = rightTail->next;
+        }
+        head = head->next;
+    }
+
+    // 連接 left 和 right 串列
+    leftTail->next = rightHead->next; // 合併兩個部分
+    rightTail->next = nullptr; // 右邊部分的結尾應指向 null
+
+    ListNode* newHead = leftHead->next; // 新的頭節點是 left 部分的頭
+    delete leftHead; // 刪除虛擬頭節點
+    delete rightHead; // 刪除虛擬頭節點
+
+    return newHead;
+}
+
+int main() {
+    ListNode *head = new ListNode(), *pre;
     ListNode *current = head;
     string line;
     getline(cin, line);
     istringstream ss(line);
-    int tmp, k; cin>>k;
-    while(ss>>tmp){
+    int tmp, x; 
+    cin >> x;
+
+    // 建立鏈結串列
+    while (ss >> tmp) {
         pre = current;
         current->val = tmp;
         current = current->next = new ListNode();
@@ -43,11 +76,12 @@ int main(){
     delete current;
     current = nullptr;
     pre->next = nullptr;
-    // ----- 實作區塊 -----
-    // head 和 k 已被建立並賦予數值，可直接使用
 
+    // ----- 實作區塊 -----
+    head = partition(head, x); // 呼叫 partition 函式進行分組
     // --------------------
-    traverse(head);
-    clear(head);
+
+    traval(head); // 輸出結果
+    clear(head);  // 清除鏈結串列
     return 0;
 }
