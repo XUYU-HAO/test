@@ -3,88 +3,122 @@
 #include <sstream>
 using namespace std;
 
-// Definition for singly-linked list.
+// 定義單向鏈結串列的節點結構
 struct ListNode {
     int val;
-    ListNode *next;
+    ListNode* next;
     ListNode() : val(0), next(nullptr) {}
     ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
-void clear(ListNode *start){
-    while(start != nullptr){
-        ListNode *tmp = start;
-        start = start->next;
-        delete tmp;
+// 檢查鏈結串列是否為空
+void isEmpty(ListNode* head) {
+    if (head == nullptr) {
+        cout << "true\n";
+    } else {
+        cout << "false\n";
     }
 }
 
-void traverse(ListNode *start){
-    if (start == nullptr) return; // 如果鏈結串列為空，直接返回
-    cout << start->val; // 首先輸出第一個數字
-    for(ListNode *it = start->next; it != nullptr; it = it->next){
-        cout << " " << it->val; // 從第二個節點開始，每個數字前面加上一個空格
+// 輸出整個鏈結串列
+void printList(ListNode* head) {
+    if (head == nullptr) {
+        cout << "NULL\n";
+        return;
     }
-    cout << "\n"; // 輸出結束後換行
+    ListNode* current = head;
+    while (current != nullptr) {
+        cout << current->val;
+        if (current->next != nullptr) {
+            cout << "->";
+        }
+        current = current->next;
+    }
+    cout << "->NULL\n";
 }
 
-ListNode* rotateRight(ListNode* head, int k) {
-    if (!head || !head->next || k == 0) {
-        return head; // 如果鏈結串列為空或只有一個節點，或 k 為 0，則不需要旋轉
+// 在指定位置插入節點
+void insertNode(ListNode*& head, int index, int value) {
+    ListNode* newNode = new ListNode(value);
+
+    if (index == 0) {
+        // 插入到頭部
+        newNode->next = head;
+        head = newNode;
+        return;
     }
 
-    // 1. 計算鏈結串列的長度
-    ListNode* tail = head;
-    int n = 1; // 頭節點已經算作 1
-    while (tail->next != nullptr) {
-        tail = tail->next;
-        n++;
+    ListNode* current = head;
+    int currentIndex = 0;
+
+    while (current != nullptr && currentIndex < index - 1) {
+        current = current->next;
+        currentIndex++;
     }
 
-    // 2. 處理 k 大於 n 的情況
-    k = k % n;
-    if (k == 0) {
-        return head; // 如果旋轉次數是 n 的倍數，則不需要改變
+    if (current != nullptr) {
+        newNode->next = current->next;
+        current->next = newNode;
     }
-
-    // 3. 找到新頭節點 (第 n - k 個節點)
-    ListNode* newTail = head;
-    for (int i = 1; i < n - k; i++) {
-        newTail = newTail->next;
-    }
-
-    // 4. 改變鏈結串列的指向
-    ListNode* newHead = newTail->next;
-    newTail->next = nullptr;
-    tail->next = head; // 將原尾節點的 next 指向原頭節點，形成環
-
-    return newHead;
 }
 
+// 刪除指定位置的節點
+void deleteNode(ListNode*& head, int index) {
+    if (head == nullptr) return;
+
+    if (index == 0) {
+        ListNode* temp = head;
+        head = head->next;
+        delete temp;
+        return;
+    }
+
+    ListNode* current = head;
+    int currentIndex = 0;
+
+    while (current != nullptr && currentIndex < index - 1) {
+        current = current->next;
+        currentIndex++;
+    }
+
+    if (current != nullptr && current->next != nullptr) {
+        ListNode* temp = current->next;
+        current->next = current->next->next;
+        delete temp;
+    }
+}
+
+// 主程式
 int main() {
-    ListNode *head = new ListNode(), *pre;
-    ListNode *current = head;
+    ListNode* head = nullptr; // 初始時鏈結串列為空
     string line;
-    getline(cin, line);
-    istringstream ss(line);
-    int tmp, k; 
-    cin >> k;
-
-    while (ss >> tmp) {
-        pre = current;
-        current->val = tmp;
-        current = current->next = new ListNode();
-    }
-    delete current;
-    current = nullptr;
-    pre->next = nullptr;
-
-    // ----- 實作區塊 -----
-    head = rotateRight(head, k); // 呼叫旋轉函式
-    // --------------------
+    string command;
     
-    traverse(head);
-    clear(head);
+    while (getline(cin, line)) {
+        istringstream ss(line);
+        ss >> command;
+
+        if (command == "E") {
+            isEmpty(head);
+        } else if (command == "P") {
+            printList(head);
+        } else if (command == "I") {
+            int index, value;
+            ss >> index >> value;
+            insertNode(head, index, value);
+        } else if (command == "D") {
+            int index;
+            ss >> index;
+            deleteNode(head, index);
+        }
+    }
+
+    // 清除所有動態分配的記憶體
+    while (head != nullptr) {
+        ListNode* temp = head;
+        head = head->next;
+        delete temp;
+    }
+
     return 0;
 }
