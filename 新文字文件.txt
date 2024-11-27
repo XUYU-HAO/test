@@ -13,29 +13,65 @@ struct ListNode {
 };
 
 void clear(ListNode *start){
-    while(start!=nullptr){
+    while(start != nullptr){
         ListNode *tmp = start;
         start = start->next;
         delete tmp;
-        tmp = nullptr;
     }
 }
 
 void traverse(ListNode *start){
-    for(ListNode *it=start; it!=nullptr; it=it->next){
-        cout<<" "+(it==start)<<it->val;
+    if (start == nullptr) return; // 如果鏈結串列為空，直接返回
+    cout << start->val; // 首先輸出第一個數字
+    for(ListNode *it = start->next; it != nullptr; it = it->next){
+        cout << " " << it->val; // 從第二個節點開始，每個數字前面加上一個空格
     }
-    cout<<"\n";
+    cout << "\n"; // 輸出結束後換行
 }
 
-int main(){
-    ListNode *head=new ListNode(), *pre;
+ListNode* rotateRight(ListNode* head, int k) {
+    if (!head || !head->next || k == 0) {
+        return head; // 如果鏈結串列為空或只有一個節點，或 k 為 0，則不需要旋轉
+    }
+
+    // 1. 計算鏈結串列的長度
+    ListNode* tail = head;
+    int n = 1; // 頭節點已經算作 1
+    while (tail->next != nullptr) {
+        tail = tail->next;
+        n++;
+    }
+
+    // 2. 處理 k 大於 n 的情況
+    k = k % n;
+    if (k == 0) {
+        return head; // 如果旋轉次數是 n 的倍數，則不需要改變
+    }
+
+    // 3. 找到新頭節點 (第 n - k 個節點)
+    ListNode* newTail = head;
+    for (int i = 1; i < n - k; i++) {
+        newTail = newTail->next;
+    }
+
+    // 4. 改變鏈結串列的指向
+    ListNode* newHead = newTail->next;
+    newTail->next = nullptr;
+    tail->next = head; // 將原尾節點的 next 指向原頭節點，形成環
+
+    return newHead;
+}
+
+int main() {
+    ListNode *head = new ListNode(), *pre;
     ListNode *current = head;
     string line;
     getline(cin, line);
     istringstream ss(line);
-    int tmp, k; cin>>k;
-    while(ss>>tmp){
+    int tmp, k; 
+    cin >> k;
+
+    while (ss >> tmp) {
         pre = current;
         current->val = tmp;
         current = current->next = new ListNode();
@@ -43,10 +79,11 @@ int main(){
     delete current;
     current = nullptr;
     pre->next = nullptr;
-    // ----- 實作區塊 -----
-    // head 和 k 已被建立並賦予數值，可直接使用
 
+    // ----- 實作區塊 -----
+    head = rotateRight(head, k); // 呼叫旋轉函式
     // --------------------
+    
     traverse(head);
     clear(head);
     return 0;
