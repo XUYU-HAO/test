@@ -1,0 +1,53 @@
+#include <iostream>
+#include <string>
+#include <sstream>
+using namespace std;
+
+// Definition for singly-linked list.
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+void clear(ListNode *start){
+    while(start!=nullptr){
+        ListNode *tmp = start;
+        start = start->next;
+        delete tmp;
+        tmp = nullptr;
+    }
+}
+
+void traverse(ListNode *start){
+    for(ListNode *it=start; it!=nullptr; it=it->next){
+        cout<<" "+(it==start)<<it->val;
+    }
+    cout<<"\n";
+}
+
+int main(){
+    ListNode *head=new ListNode(), *pre;
+    ListNode *current = head;
+    string line;
+    getline(cin, line);
+    istringstream ss(line);
+    int tmp, k; cin>>k;
+    while(ss>>tmp){
+        pre = current;
+        current->val = tmp;
+        current = current->next = new ListNode();
+    }
+    delete current;
+    current = nullptr;
+    pre->next = nullptr;
+    // ----- 實作區塊 -----
+    // head 和 k 已被建立並賦予數值，可直接使用
+
+    // --------------------
+    traverse(head);
+    clear(head);
+    return 0;
+}
