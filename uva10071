@@ -1,0 +1,16 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    int v, t;
+    
+    // 持續讀取輸入直到空值
+    while (cin >> v >> t) {
+        // 計算 T * V * 2
+        int result = v * t * 2;
+        // 輸出結果
+        cout << result << endl;
+    }
+    
+    return 0;
+}
