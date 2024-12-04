@@ -1,0 +1,80 @@
+#include <iostream>
+using namespace std;
+
+template <class T>
+class Queue {
+   public:
+    Queue(int queue_capacity);
+    T &front() const;
+    T &rear() const;
+    void push(const T &item);
+    void pop();
+
+   private:
+    T *queue;
+    int pfront;
+    int prear;
+    int capacity;
+};
+
+template <class T>
+Queue<T>::Queue(int queue_capacity) {
+    this->queue = new T[queue_capacity];
+    this->capacity = queue_capacity;
+    this->pfront = 0;  // 初始時，前端指標在索引0
+    this->prear = 0;   // 初始時，尾端指標也在索引0
+}
+
+template <class T>
+T &Queue<T>::front() const {
+    if (pfront != prear) { // 判斷佇列是否為空
+        return queue[pfront];
+    } else {
+        throw out_of_range("Queue is empty.");
+    }
+}
+
+template <class T>
+T &Queue<T>::rear() const {
+    if (pfront != prear) { // 判斷佇列是否為空
+        return queue[(prear - 1 + capacity) % capacity];  // 取尾端元素
+    } else {
+        throw out_of_range("Queue is empty.");
+    }
+}
+
+template <class T>
+void Queue<T>::push(const T &item) {
+    // 判斷是否已經滿了
+    if ((prear + 1) % capacity == pfront) {
+        cout << "Queue is full, cannot add more elements." << endl;
+        return;
+    }
+    queue[prear] = item;
+    prear = (prear + 1) % capacity;  // 尾端指標循環
+}
+
+template <class T>
+void Queue<T>::pop() {
+    if (pfront != prear) {  // 只有在佇列不為空時才執行
+        cout << "Element: " << queue[pfront] << " remove from queue." << endl;
+        pfront = (pfront + 1) % capacity;  // 前端指標循環
+    } else {
+        cout << "Queue is empty, cannot pop elements." << endl;
+    }
+}
+
+int main() {
+    Queue<int> iqueue(10); // 整數佇列，最大容量10
+    iqueue.push(1);
+    iqueue.push(2);
+
+    Queue<char> cqueue(10); // 字元佇列，最大容量10
+    cqueue.push('a');
+
+    iqueue.pop();
+    iqueue.pop();
+    cqueue.pop();
+
+    return 0;
+}
