@@ -1,0 +1,132 @@
+#include <iostream>
+using namespace std;
+
+template <class T>
+class Queue {
+public:
+    Queue(int queueCapacity = 1000);  // 建立空隊列，預設容量為 10
+    bool IsEmpty() const;           // 判斷隊列是否為空
+    T& Front() const;               // 返回隊首元素
+    T& Rear() const;                // 返回隊尾元素
+    void Push(const T& item);       // 將元素放入隊列
+    void Pop();                     // 移除隊首元素
+
+private:
+    T* queue;      // 用於存放隊列元素的陣列
+    int front,     // 指向隊首位置
+        rear,      // 指向隊尾位置
+        capacity;  // 隊列的容量
+};
+
+// Queue 類別的實作
+template <class T>
+Queue<T>::Queue(int queueCapacity) {
+    capacity = queueCapacity;
+    queue = new T[capacity];
+    front = 0;
+    rear = 0;
+}
+
+template <class T>
+bool Queue<T>::IsEmpty() const {
+    return front == rear;
+}
+
+template <class T>
+T& Queue<T>::Front() const {
+    return queue[front];
+}
+
+template <class T>
+T& Queue<T>::Rear() const {
+    return queue[(rear - 1 + capacity) % capacity];
+}
+
+template <class T>
+void Queue<T>::Push(const T& item) {
+    if ((rear + 1) % capacity != front) {  // 確保隊列未滿
+        queue[rear] = item;
+        rear = (rear + 1) % capacity;
+    }
+}
+
+template <class T>
+void Queue<T>::Pop() {
+    if (!IsEmpty()) {
+        front = (front + 1) % capacity;
+    }
+}
+
+// 用於檢查某個位置是否在網格內
+bool checkInGrid(int M, int N, int row, int col) {
+    return (row >= 0 && col >= 0 && row < M && col < N);
+}
+
+// BFS 進行洪水填充，將島嶼標記為已訪問（值變為 2）
+void floodFill(int** grid, int M, int N, int row, int col) {
+    Queue<int> que;
+    int index = row * N + col;
+    que.Push(index);  // 將起點加入隊列
+
+    // 定義四個方向（上下左右）
+    int direction_col[4] = {-1, 0, 0, 1};
+    int direction_row[4] = {0, 1, -1, 0};
+
+    while (!que.IsEmpty()) {
+        index = que.Front();
+        que.Pop();
+
+        int q_row = index / N;
+        int q_col = index % N;
+        grid[q_row][q_col] = 2;  // 將當前位置標記為已訪問
+
+        // 嘗試四個方向
+        for (int i = 0; i < 4; i++) {
+            int next_row = q_row + direction_row[i];
+            int next_col = q_col + direction_col[i];
+            if (checkInGrid(M, N, next_row, next_col) && grid[next_row][next_col] == 1) {
+                int next_index = next_row * N + next_col;
+                que.Push(next_index);  // 將相鄰的陸地加入隊列
+                grid[next_row][next_col] = 2;  // 標記為已訪問
+            }
+        }
+    }
+}
+
+// 計算島嶼數量
+int numIslands(int** grid, int M, int N) {
+    int result = 0;
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            if (grid[i][j] == 1) {  // 找到未訪問的陸地
+                floodFill(grid, M, N, i, j);  // 進行 BFS 填充
+                result++;  // 一個島嶼處理完成，計數器加一
+            }
+        }
+    }
+    return result;
+}
+
+int main() {
+    int M, N;
+    while (cin >> M >> N) {
+        // 創建網格
+        int** grid = new int*[M];
+        for (int i = 0; i < M; i++) {
+            grid[i] = new int[N];
+            for (int j = 0; j < N; j++) {
+                cin >> grid[i][j];
+            }
+        }
+
+        // 計算並輸出島嶼數量
+        cout << numIslands(grid, M, N) << endl;
+
+        // 釋放動態分配的記憶體
+        for (int i = 0; i < M; i++) {
+            delete[] grid[i];
+        }
+        delete[] grid;
+    }
+    return 0;
+}
