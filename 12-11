@@ -1,0 +1,120 @@
+#include <iostream>
+#include <string>  // 加入 string 標頭
+using namespace std;
+
+// 定義節點結構
+struct Node {
+    int data;      // 存放資料
+    Node* next;    // 指向下一個節點的指標
+    Node(int x) : data(x), next(nullptr) {}  // 建構子
+};
+
+// 單向鏈結串列類別
+class LinkedList {
+private:
+    Node* head;    // 頭指標
+
+public:
+    // 建構子
+    LinkedList() : head(nullptr) {}
+
+    // 判斷串列是否為空
+    void isEmpty() {
+        if (head == nullptr) {
+            cout << "True" << endl;
+        } else {
+            cout << "false" << endl;
+        }
+    }
+
+    // 輸出整個串列
+    void printList() {
+        if (head == nullptr) {
+            cout << "NULL" << endl;
+        } else {
+            Node* current = head;
+            while (current != nullptr) {
+                cout << current->data;
+                if (current->next != nullptr) cout << "->";
+                current = current->next;
+            }
+            cout << "->NULL" << endl;
+        }
+    }
+
+    // 在指定位置插入節點
+    void insert(int index, int value) {
+        Node* newNode = new Node(value);
+        if (index == 0) {  // 插入到頭部
+            newNode->next = head;
+            head = newNode;
+            return;
+        }
+        
+        Node* current = head;
+        for (int i = 0; i < index - 1; ++i) {
+            if (current == nullptr) return;  // 如果 index 無效
+            current = current->next;
+        }
+
+        if (current != nullptr) {
+            newNode->next = current->next;
+            current->next = newNode;
+        }
+    }
+
+    // 刪除指定位置的節點
+    void deleteAt(int index) {
+        if (head == nullptr) return;  // 如果串列為空，無法刪除
+        
+        if (index == 0) {  // 刪除頭部
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+            return;
+        }
+
+        Node* current = head;
+        for (int i = 0; i < index - 1; ++i) {
+            if (current == nullptr || current->next == nullptr) return;  // 如果 index 無效
+            current = current->next;
+        }
+
+        Node* temp = current->next;
+        if (temp != nullptr) {
+            current->next = temp->next;
+            delete temp;
+        }
+    }
+
+    // 解構子，釋放記憶體
+    ~LinkedList() {
+        while (head != nullptr) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
+    }
+};
+
+int main() {
+    LinkedList list;
+    string command;
+    int index, value;
+
+    while (cin >> command) {  // 這裡會讀取字符串
+        if (command == "E") {
+            list.isEmpty();
+        } else if (command == "P") {
+            list.printList();
+        } else if (command == "I") {
+            cin >> index >> value;
+            list.insert(index, value);
+        } else if (command == "D") {
+            cin >> index;
+            list.deleteAt(index);
+        }
+    }
+
+    return 0;
+}
